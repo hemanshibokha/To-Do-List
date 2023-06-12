@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To Do list</title>
+    <style>
+        body {
+            text-align: center;
+            margin-top: 100px;
+            background-color: plum;
+        }
+
+        table input {
+            height: 30px;
+            width: 200px;
+        }
+
+        table button {
+            height: 32px;
+            width: 70px;
+            background-color: rgba(138, 12, 163, 0.696);
+            border: none;
+            color: rgb(255, 255, 255);
+            font-size: 15px;
+        }
+
+        table {
+            margin: auto;
+            margin-top: 10px;
+        }
+
+        .box {
+            background-color: rgba(244, 33, 255, 0.411);
+            width: 500px;
+            margin: auto;
+            padding: 50px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="box">
+        <table>
+            <input type="hidden" id="input">
+            <input type="text" id="item" placeholder="Add item">
+            <td>
+                <button onclick="save()" id="addid">Add</button>
+                <button onclick="save()" id="editid">Edit</button>
+            </td>
+        </table>
+
+        <table border="1" cellpadding="10">
+            <tr>
+                <td colspan="3">Items</td>
+            </tr>
+            <tbody id="record">
+            </tbody>
+        </table>
+    </div>
+
+    <script type="text/javascript">
+        let data = [];
+        let save = () => {
+            let userid = document.getElementById('input').value;
+            let item = document.getElementById('item').value;
+            let obj = {
+                userid: Math.floor(Math.random() * 10),
+                item: item
+            }
+            if(userid){
+                let alldata = JSON.parse(localStorage.getItem('user'));
+                for(let i in alldata){
+                    if(alldata[i].userid == userid){
+                        alldata[i].item = item;
+                    }
+                    localStorage.setItem('user', JSON.stringify(alldata));
+                }
+                viewData();
+                document.getElementById('input').value = "";
+                alert("record updated")
+            }
+            else{
+                if (JSON.parse(localStorage.getItem('user')) == null || JSON.parse(localStorage.getItem('user')) == undefined) {
+                    data.push(obj);
+                    localStorage.setItem('user', JSON.stringify(data));
+                }
+                else {
+                    let val = JSON.parse(localStorage.getItem('user'));
+                    val.push(obj);
+                    localStorage.setItem('user', JSON.stringify(val));
+                }
+            }
+            document.getElementById('item').value = '';
+            viewData();
+        }
+        let viewData = () => {
+            document.getElementById('editid').style.display = "none";
+            document.getElementById('addid').style.display = "block";
+
+            let val = JSON.parse(localStorage.getItem('user'));
+            let record = (val == null) ? [] : val;
+            let tbl = '';
+            record.map((v) => {
+                const { item, userid } = v;
+                tbl += `
+                        <tr>
+                            <td>${item}</td>    
+                            <td>
+                                <button onclick = "deleteData(${userid})">Delete</button>
+                                <button onclick = "editData(${userid})">Edit</button>
+                            </td>       
+                        </tr>
+                    `
+            })
+            document.getElementById('record').innerHTML = tbl;
+        }
+        
+        viewData();
+
+        let deleteData = (id) => {
+            let val = JSON.parse(localStorage.getItem('user'));
+            let ans = val.filter((v) => {
+                return v.userid != id;
+            })
+            localStorage.setItem('user', JSON.stringify(ans));
+            alert("record Deleted");
+            viewData();
+        }
+
+        let editData = (id) => {
+            document.getElementById('addid').style.display = "none";
+            document.getElementById('editid').style.display = "block";
+
+            let val = JSON.parse(localStorage.getItem('user'));
+            let ans = val.filter((v) => {
+                return v.userid == id;
+            })
+            document.getElementById('item').value = ans[0].item;
+            document.getElementById('input').value = ans[0].userid;
+        }
+
+    </script>
+
+</body>
+
+</html>
